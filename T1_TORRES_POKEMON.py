@@ -1,11 +1,20 @@
+# ===========================
+# EXAMEN POKEMON - TORRES GEAN PIERRE
+# ===========================
+
 import random
 
-# ===================== CLASES =====================
-
+# ---------------------------
+# Clase Entrenador
+# ---------------------------
 class Entrenador:
     def __init__(self, nombre):
         self.nombre = nombre
 
+
+# ---------------------------
+# Clase Pokemon
+# ---------------------------
 class Pokemon:
     def __init__(self, nombre):
         self.nombre = nombre
@@ -14,117 +23,151 @@ class Pokemon:
         self.vida_actual = self.vida_max
 
     def recuperar(self):
-        # Vuelve a tener su vida máxima
         self.vida_actual = self.vida_max
 
+    def __str__(self):
+        return f"{self.nombre} | Ataque Máx: {self.max_ataque} | Vida: {self.vida_actual}/{self.vida_max}"
 
-# ===================== FUNCIONES =====================
 
-def crearEntrenadorPokemon(num):
-    if num == 1:
-        print("\n=== CREACIÓN DE TU ENTRENADOR Y POKÉMON ===")
+# ---------------------------
+# Variables globales
+# ---------------------------
+entrenador1 = None
+pokemon1 = None
+entrenador2 = None
+pokemon2 = None
+ganadas = 0
+perdidas = 0
+
+
+# ---------------------------
+# Funciones
+# ---------------------------
+def crearEntrenadorPokemon(n):
+    global entrenador1, pokemon1, entrenador2, pokemon2
+
+    if n == 1:
+        nombre_entrenador = input("Ingrese su nombre de Entrenador: ")
+        nombre_pokemon = input("Ingrese el nombre de su Pokemon: ")
+        entrenador1 = Entrenador(nombre_entrenador)
+        pokemon1 = Pokemon(nombre_pokemon)
+        print("\nSu Pokémon ha sido creado:")
+        print(pokemon1)
+
+    elif n == 2:
+        nombre_entrenador = input("Ingrese el nombre del Entrenador rival: ")
+        nombre_pokemon = input("Ingrese el nombre del Pokemon rival: ")
+        entrenador2 = Entrenador(nombre_entrenador)
+        pokemon2 = Pokemon(nombre_pokemon)
+        print("\nEl Pokémon rival ha sido creado:")
+        print(pokemon2)
+
+
+def valorDeAtaque(n):
+    if n == 1:
+        return random.randint(0, pokemon1.max_ataque)
     else:
-        print("\n=== CREACIÓN DEL ENTRENADOR RIVAL Y SU POKÉMON ===")
-    
-    nombre_entrenador = input("Ingrese el nombre del entrenador: ")
-    nombre_pokemon = input("Ingrese el nombre del Pokémon: ")
-
-    entrenador = Entrenador(nombre_entrenador)
-    pokemon = Pokemon(nombre_pokemon)
-
-    print(f"\nEntrenador: {entrenador.nombre}")
-    print(f"Pokémon: {pokemon.nombre}")
-    print(f"Ataque máximo: {pokemon.max_ataque}")
-    print(f"Vida máxima: {pokemon.vida_max}")
-    print(f"Vida actual: {pokemon.vida_actual}")
-
-    return entrenador, pokemon
+        return random.randint(0, pokemon2.max_ataque)
 
 
-def valorDeAtaque(num, pokemon1, pokemon2):
-    if num == 1:
-        atacante = pokemon1
-    else:
-        atacante = pokemon2
-    
-    ataque = random.randint(0, atacante.max_ataque)
-    return ataque
-
-
-def defender(num, ataque, pokemon1, pokemon2):
-    if num == 1:
-        defensor = pokemon1
-    else:
-        defensor = pokemon2
-
-    # Lanzamos un dado entre 1 y 6
+def defender(n, ataque):
     dado = random.randint(1, 6)
     if dado == 6:
-        ataque = 0  # el ataque se anula
+        ataque = 0  # esquiva total
 
-    defensor.vida_actual -= ataque
-    return defensor.vida_actual
+    if n == 1:
+        pokemon1.vida_actual -= ataque
+        return pokemon1.vida_actual
+    else:
+        pokemon2.vida_actual -= ataque
+        return pokemon2.vida_actual
 
 
-# ===================== PROGRAMA PRINCIPAL =====================
+# ---------------------------
+# Algoritmos extra
+# ---------------------------
+# Fuerza bruta: encontrar Pokémon con mayor vida actual
+def pokemon_con_mas_vida():
+    if pokemon1.vida_actual >= pokemon2.vida_actual:
+        return pokemon1
+    else:
+        return pokemon2
 
-def main():
-    # Crear al primer entrenador y pokemon (usuario)
-    entrenador1, pokemon1 = crearEntrenadorPokemon(1)
+# Ordenamiento: burbuja de los ataques de un turno
+def ordenar_daños(lista_daños):
+    n = len(lista_daños)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if lista_daños[j] > lista_daños[j + 1]:
+                lista_daños[j], lista_daños[j + 1] = lista_daños[j + 1], lista_daños[j]
+    return lista_daños
 
-    victorias = 0
-    derrotas = 0
+
+# ---------------------------
+# Programa principal
+# ---------------------------
+if __name__ == "__main__":
+    crearEntrenadorPokemon(1)  # siempre inicia jugador con su Pokémon
 
     while True:
-        print("\n=== MENÚ PRINCIPAL ===")
-        opcion = input("¿Desea Pelear (P) o Finalizar (F)? ").upper()
+        print("\n===== MENU PRINCIPAL =====")
+        print("P - Pelear")
+        print("F - Finalizar juego")
+        opcion = input("Elija una opción: ").upper()
 
         if opcion == "F":
-            # Finalizar el juego
-            print("\n=== RESUMEN FINAL ===")
+            print("\n=== FIN DEL JUEGO ===")
             print(f"Entrenador: {entrenador1.nombre}")
-            print(f"Pokémon: {pokemon1.nombre}")
-            print(f"Ataque máximo: {pokemon1.max_ataque}")
-            print(f"Vida máxima: {pokemon1.vida_max}")
-            print(f"Encuentros ganados: {victorias}")
-            print(f"Encuentros perdidos: {derrotas}")
+            print(f"Pokemon final: {pokemon1}")
+            print(f"Encuentros ganados: {ganadas}")
+            print(f"Encuentros perdidos: {perdidas}")
             break
 
         elif opcion == "P":
-            # Recuperamos vida antes de iniciar la pelea
+            # Se crea el rival
+            crearEntrenadorPokemon(2)
+
+            # Recuperar vida antes de cada pelea
             pokemon1.recuperar()
+            pokemon2.recuperar()
 
-            # Crear rival
-            entrenador2, pokemon2 = crearEntrenadorPokemon(2)
+            print("\n--- INICIO DE LA PELEA ---")
+            daños_turno = []  # lista para aplicar ordenamiento
 
-            # Pelea
-            print("\n=== COMIENZA LA PELEA ===")
-            turno = 1  # Empieza el jugador
+            turno = 1
             while pokemon1.vida_actual > 0 and pokemon2.vida_actual > 0:
-                if turno == 1:
-                    ataque = valorDeAtaque(1, pokemon1, pokemon2)
-                    vida_restante = defender(2, ataque, pokemon1, pokemon2)
-                    print(f"\n{pokemon1.nombre} ataca con {ataque} de daño.")
-                    print(f"{pokemon2.nombre} ahora tiene {vida_restante} de vida.")
-                    turno = 2
-                else:
-                    ataque = valorDeAtaque(2, pokemon1, pokemon2)
-                    vida_restante = defender(1, ataque, pokemon1, pokemon2)
-                    print(f"\n{pokemon2.nombre} ataca con {ataque} de daño.")
-                    print(f"{pokemon1.nombre} ahora tiene {vida_restante} de vida.")
-                    turno = 1
+                print(f"\n--- Turno {turno} ---")
 
-            # Resultado
-            if pokemon1.vida_actual > 0:
-                print(f"\nGanador: {entrenador1.nombre} con {pokemon1.nombre}")
-                victorias += 1
-            else:
-                print(f"\nGanador: {entrenador2.nombre} con {pokemon2.nombre}")
-                derrotas += 1
+                # Ataca jugador
+                ataque1 = valorDeAtaque(1)
+                vida_rival = defender(2, ataque1)
+                daños_turno.append(ataque1)
+                print(f"{pokemon1.nombre} ataca con {ataque1}. Vida de {pokemon2.nombre}: {vida_rival}")
+
+                if vida_rival <= 0:
+                    print(f"\n¡{entrenador1.nombre} gana con {pokemon1.nombre}!")
+                    ganadas += 1
+                    break
+
+                # Ataca rival
+                ataque2 = valorDeAtaque(2)
+                vida_jugador = defender(1, ataque2)
+                daños_turno.append(ataque2)
+                print(f"{pokemon2.nombre} ataca con {ataque2}. Vida de {pokemon1.nombre}: {vida_jugador}")
+
+                if vida_jugador <= 0:
+                    print(f"\n¡{entrenador2.nombre} gana con {pokemon2.nombre}!")
+                    perdidas += 1
+                    break
+
+                turno += 1
+
+            # Mostrar ordenamiento de daños del combate
+            print("\n--- ORDEN DE DAÑOS (menor a mayor con Bubble Sort) ---")
+            print(ordenar_daños(daños_turno))
+
+            # Mostrar Pokémon con más vida (fuerza bruta)
+            print(f"\nEl Pokémon con más vida al final es: {pokemon_con_mas_vida().nombre}")
 
         else:
-            print("Opción inválida. Intente de nuevo.")
-
-
-# ===================== EJECUCIÓN =====================
-main()
+            print("Opción inválida, intente de nuevo.")
